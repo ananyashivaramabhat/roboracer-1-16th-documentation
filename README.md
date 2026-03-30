@@ -67,8 +67,18 @@ The following was observed:
 - ✅ Green LED on the Orin Nano module came on
 - ✅ Cooling fan spun up
 
-Video Demonstrating the power on process:
-[Power On](https://drive.google.com/file/d/1E8DUts9J0zCCFHP2B0FsvDB4nNnh1jJv/view?usp=drive_link)
+  <p align="center">
+
+**Video Showing the Power On Process*
+</p>
+<p align="center">
+  <a href="https://drive.google.com/file/d/1E8DUts9J0zCCFHP2B0FsvDB4nNnh1jJv/view?usp=sharing
+">
+    <img src="Poweron.png" alt="Hardware Overview Video" width="600"/>
+  </a>
+</p>
+
+
 
 
 ### Ubuntu Boot
@@ -109,8 +119,17 @@ A terminal was opened and pinned to the Ubuntu Favorites bar. This serves as the
 
 ## 06 · Terminal Basics & File Management
 
-A working directory was created, the Week 1 scripts were moved into it, and Linux fundamentals were practiced:
+A working directory was created, the Week 1 scripts were moved into it, and Linux fundamentals were practiced.
 
+### Accessing the Jetson through SSH
+
+Since this was the first use of SSH in the lab, the system was accessed remotely from a laptop using **SSH (Secure Shell)**. SSH allows the Jetson terminal to be opened and controlled from another computer over the same Wi-Fi network, without needing to stay directly connected through a monitor, keyboard, and mouse.
+
+Before connecting through SSH, both the Jetson and the laptop were required to be connected to the same Wi-Fi network. The IP address of the Jetson was obtained from the OLED display.
+
+**Ubuntu:**
+```bash
+$ ssh team1XX@<CAR_IP_ADDRESS>
 ```bash
 # Create a folder and navigate into it
 $ mkdir ~/Documents/week1
@@ -132,8 +151,8 @@ $ python3 game.py
 
 The permission string `-rw-r--r--` means the owner can read/write, everyone else can only read. After `chmod a+x` it becomes `-rwxr-xr-x` — now everyone can execute it.
 
-![Terminal — Permissions](assets/images/terminal_permissions.jpg)
-<!-- terminal showing ls -l before and after chmod -->
+This is a small video tutorial demonstrating SSH connection and running the script:
+[![SSH Setup and Run](SSH.png)](https://drive.google.com/file/d/1uu-0GCPetoVwq8YFxhOX7sVviAlsfZnP/view?usp=drive_link)
 
 ### Command Cheat Sheet
 

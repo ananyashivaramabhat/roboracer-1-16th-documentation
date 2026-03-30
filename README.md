@@ -234,7 +234,7 @@ The **C rating** determines max safe discharge: 50C × 1.4A = 70A burst. The bat
 > ⚠️ The JST balance connector **must align to the right side** of the charger port. The charger has two channels — left is CH A, right is CH B. Getting this wrong can damage the battery.
 
 This is a small video tutorial demonstrating the charging of the LiPo Battery:
-[LiPo_Battery](https://drive.google.com/file/d/1cydfc8hBBwhlKvfri_qyy3cxz_BFVL4y/view?usp=drive_link)
+[![LiPo Battery Charging](Lipo.png)](https://drive.google.com/file/d/1EaUpgWMUnqyIJ_EsmW8YUcG8p6_spHuw/view?usp=sharing)
 
 ### Charging the NiMH — Traxxas EZ-Peak Dual
 

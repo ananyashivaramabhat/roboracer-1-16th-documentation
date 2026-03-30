@@ -17,8 +17,15 @@ Traxxas E-Revo, Jetson Orin Nano, RealSense D435, custom carrier board.
 
 The E116 is built on a **Traxxas 1/16 E-Revo VXL** — a small all-wheel-drive car with Ackerman steering geometry. The stock Traxxas electronics (ESC, receiver) handle manual control, while an **NVIDIA Jetson Orin Nano** and a **custom carrier board (LU v2.1)** sit on top for autonomous operation. An **Intel RealSense D435** stereo camera provides depth + RGB perception.
 
-Hardware Overview Video: [Hardware Overview](https://drive.google.com/file/d/1EaUpgWMUnqyIJ_EsmW8YUcG8p6_spHuw/view?usp=sharing)
+<p align="center">
 
+**Video Showing the Hardware Setup**
+</p>
+<p align="center">
+  <a href="https://drive.google.com/file/d/1EaUpgWMUnqyIJ_EsmW8YUcG8p6_spHuw/view?usp=sharing">
+    <img src="Hardware_overview.png" alt="Hardware Overview Video" width="600"/>
+  </a>
+</p>
 
 ## 02 · Power Rail Verification
 

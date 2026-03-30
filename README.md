@@ -1,7 +1,5 @@
 # E116 Build Log
 
-> **[View the styled build log →](https://YOUR_USERNAME.github.io/E116-BuildLog/)**
-
 Bring-up and first drive of a 1/16-scale autonomous race car.  
 Traxxas E-Revo, Jetson Orin Nano, RealSense D435, custom carrier board.
 
@@ -108,10 +106,6 @@ Ubuntu was logged into using the team credentials shown below. Replace `XX` with
 
 A terminal was opened and pinned to the Ubuntu Favorites bar. This serves as the primary interface for autonomous driving work, while the GUI is mainly used for initial setup.
 
-![Ubuntu Desktop](assets/images/ubuntu_desktop.jpg)
-<!-- screenshot of Ubuntu desktop with Terminal pinned to Favorites -->
-
----
 
 ## 06 · Terminal Basics & File Management
 
@@ -248,13 +242,6 @@ This is a small video tutorial demonstrating the charging of the LiPo Battery:
 1. Plug the **Traxxas connector** from the NiMH battery into the charger
 2. Press and hold the **blue glowing button** until you hear a **long beep**
 3. The battery is now charging — if no long beep, the connection isn't right
-
-![NiMH Charger](assets/images/nimh_charger.jpg)
-<!-- Traxxas EZ-Peak with NiMH battery plugged in -->
-
-https://github.com/user-attachments/assets/VIDEO_ID_HERE
-<!-- VIDEO: Charging both batteries — LiPo on OVONIC, NiMH on Traxxas -->
-
 ### Battery Placement in the Car
 
 - **NiMH** → right battery slot. Traxxas connector plugs into the drive-train
@@ -262,8 +249,8 @@ https://github.com/user-attachments/assets/VIDEO_ID_HERE
 - Push batteries into slots, close the covers, tuck all cables away from the wheels
 - The battery checker on the carrier board should **beep loudly** and display **~11.1V** before you proceed
 
-![Battery Placement](assets/images/battery_placement.jpg)
-<!-- both batteries installed in their slots, covers closed -->
+This is a small video tutorial demonstrating the charging of the NiMH Battery:
+[![NiMH](NiMH.png)](https://drive.google.com/file/d/119dmPbtklgs4NEdk9R2XLr_2sOUVI0sn/view?usp=sharing)
 
 ### Battery Best Practices
 

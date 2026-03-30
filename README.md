@@ -1,201 +1,720 @@
-# 🏎️ E116 Autonomous Race Car README
+# E116 // Build Log
 
-This repository documents the bring-up, testing, and early software setup of the **E116 autonomous race car** over **Week 1** and **Week 2**. The platform is built on a **Traxxas 1/16 E-Revo** chassis and powered by an **NVIDIA Jetson Orin Nano** running Ubuntu Linux.
+> **[View the styled build log →](https://YOUR_USERNAME.github.io/E116-BuildLog/)**
 
-![Lab Setup Banner](Lehigh_Lab1.jpg)
-<!-- Replace with a wide shot of the car on the bench -->
+Bring-up and first drive of a 1/16-scale autonomous race car.  
+Traxxas E-Revo, Jetson Orin Nano, RealSense D435, custom carrier board.
+
+`Orin Nano 8GB` · `RealSense D435` · `LU v2.1 Carrier` · `E-Revo VXL 1/16 AWD` · `ROS 2 Humble`
+
+![Lab Setup](assets/images/lab_setup.jpg)
 
 ---
 
-## Platform Overview
+# Week 1 — Hardware Bring-Up
 
-The E116 platform combines embedded compute, sensing, and actuation hardware for robotics and autonomous vehicle experimentation.
+## 01 · Hardware Overview
 
-Main components:
+The E116 is built on a **Traxxas 1/16 E-Revo VXL** — a small all-wheel-drive car with Ackerman steering geometry. The stock Traxxas electronics (ESC, receiver) handle manual control, while an **NVIDIA Jetson Orin Nano** and a **custom carrier board (LU v2.1)** sit on top for autonomous operation. An **Intel RealSense D435** stereo camera provides depth + RGB perception.
 
-- **Traxxas 1/16 E-Revo VXL chassis**
-- **NVIDIA Jetson Orin Nano (8 GB)**
-- **Intel RealSense D435 stereo camera**
-- **Velineon 380 brushless motor**
-- **TQi 2.4 GHz RC handheld**
-- **LU v2.1 custom carrier board**
-- **LiPo battery**
-- **NiMH battery**
-- **Ovonic LiPo charger**
-- **Traxxas EZ-Peak charger**
+The full-scale E116 platform uses a LiDAR sensor and VESC motor controller instead of the stereo camera and stock ESC. LiDAR gives precise range data but costs more; the VESC enables current-based torque control the stock ESC can't do.
 
 ![Car Top View](assets/images/car_top_view.jpg)
-<!-- Replace with top view of the car -->
+<!-- top-down photo of the fully assembled car -->
 
 ![Car Side View](assets/images/car_side_view.jpg)
-<!-- Replace with side view of the car -->
+<!-- side angle showing wheels, suspension, and mounted boards -->
+
+### BOM
+
+| Part | Model | Cost | Role |
+|------|-------|------|------|
+| Chassis | Traxxas 1/16 E-Revo VXL TSM | $\___ | AWD, Ackerman steering |
+| Motor | Velineon 380 (brushless) | $\___ | Propulsion — no contact brushes, higher efficiency |
+| RC Controller | TQi 2.4GHz TSM | $\___ | Manual override / safety kill |
+| LiPo Battery | OVONIC 11.1V 1400mAh 3S 50C | $\___ | Main power, high energy density |
+| NiMH Battery | Traxxas 7.2V 1200mAh 6-cell | $\___ | Drive-train / RC receiver power |
+| LiPo Charger | OVONIC X1 200W | $\___ | Charges LiPo packs |
+| Dual Charger | Traxxas EZ-Peak 8A 3S | $\___ | Charges NiMH and LiPo |
+| Stereo Camera | Intel RealSense D435 | $\___ | Depth + RGB, stereo baseline for 3D perception |
+| Compute Module | NVIDIA Jetson Orin Nano 8GB | $\___ | GPU-accelerated edge compute, runs Ubuntu |
+| Carrier Board | LU v2.1 | ~$105 | Power mgmt, I2C/UART, drive-train PWM, OLED |
 
 ---
 
-## Bill of Materials
+## 02 · Power Rail Verification
 
-| Component | Model | Est. Cost | Role |
-|-----------|-------|-----------|------|
-| Chassis | Traxxas 1/16 E-Revo VXL TSM | $___ | AWD race car platform |
-| Motor | Velineon® 380 | $___ | Brushless propulsion motor |
-| RC Handheld | TQi 2.4 GHz TSM | $___ | Manual control and safety override |
-| LiPo Battery | OVONIC | $___ | Main power source |
-| NiMH Battery | Traxxas | $___ | Drive-train / auxiliary power |
-| LiPo Charger | OVONIC X1, 200 W | $___ | LiPo charging |
-| Dual Charger | Traxxas EZ-Peak 8A 3S | $___ | NiMH charging |
-| Stereo Camera | Intel RealSense D435 | $___ | RGB and depth sensing |
-| Compute Module | Jetson Orin Nano 8 GB | $___ | Embedded compute |
-| Carrier Board | LU v2.1 | ~$105 | Power, control, and interfaces |
+Before powering anything on the car, I verified the entire power supply chain with a **Digital Multimeter** (Fluke 8800A / GwInstek GDM-8245).
 
----
+### AC Side
 
-# Week 1 — Hardware Bring-Up and Ubuntu Setup
+Plugged the power cord into the 120V wall outlet, left the AC-DC converter disconnected. Set the DMM to **AC V** mode. Measured across the cord terminals.
 
-## 1. Lab Familiarization and Power Verification
-
-The first week focused on becoming familiar with the lab environment, major hardware components, the Digital Multimeter, and the power delivery path used by the race car.
-
-### AC Power Check
-
-The power cord was connected to the wall outlet and measured using the DMM in **AC voltage mode**.
+**Reading:** ~120 V RMS at 60 Hz — as expected for a US wall outlet.
 
 ![AC Measurement](assets/images/ac_measurement.jpg)
-<!-- Replace with photo of AC measurement -->
+<!-- DMM probes on the AC power cord -->
 
-Expected observation:
+### DC Side
 
-- approximately **120 V AC**
+Connected the AC-DC converter to the cord. Switched the DMM to **DC V** mode. Measured the barrel connector output.
 
-### DC Power Check
-
-The AC-DC converter was connected and the barrel output was measured using the DMM in **DC voltage mode**.
+**Reading:** ~19 V DC — matches the label on the converter. This is the voltage that feeds the carrier board's main power input through the barrel jack.
 
 ![DC Measurement](assets/images/dc_measurement.jpg)
-<!-- Replace with photo of DC measurement -->
+<!-- DMM probes on the barrel connector output -->
 
-Expected observation:
-
-- approximately **19 V DC**
-
-![DMM Closeup](assets/images/dmm_closeup.jpg)
-<!-- Replace with DMM close-up -->
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: DMM measurement process — AC then DC readings -->
 
 ---
 
-## 2. Hardware Component Identification
+## 03 · Assembly Inspection
 
-The major hardware components of the E116 platform were identified and studied:
+Went over the entire car before first power-on:
 
-- Traxxas chassis
-- brushless motor
-- steering servo
-- RC handheld
-- RealSense stereo camera
-- LiPo battery
-- NiMH battery
-- battery chargers
-- Jetson Orin Nano
-- LU v2.1 carrier board
-
-This stage also involved understanding each component’s role in the vehicle system.
-
----
-
-## 3. Car Inspection Before Power-On
-
-Before booting the system, the assembled car was checked for:
-
-- loose screws
-- loose wires
-- poor connector seating
-- incorrect polarity
-- poor cable routing
-- mechanical assembly issues
+- Checked carrier board standoff screws — a couple were slightly loose, tightened them
+- Verified all wire connections: battery leads, motor wires, servo cable seated properly
+- Confirmed correct polarity on every DC connection (red → V+, black → GND)
+- Camera module mounted and USB cable firmly seated in the Jetson port
+- No metal debris or loose parts that could cause a short
 
 ![Inspection — Wiring](assets/images/inspection_wiring.jpg)
-<!-- Replace with wiring inspection image -->
+<!-- wiring harness and connections on the car -->
 
 ![Inspection — Mounting](assets/images/inspection_mounting.jpg)
-<!-- Replace with Jetson/carrier board mounting image -->
+<!-- Jetson + carrier board mounted on the chassis -->
 
-Any loose components were tightened before proceeding.
+Everything checked out after the fixes. Ready for power-on.
 
 ---
 
-## 4. First Power-On and RC Link Test
-
-A monitor, keyboard, and mouse were connected to the Jetson. The AC-DC adapter was then connected to the **Main Barrel** input on the carrier board.
+## 04 · First Power-On & Boot
 
 ### Power-On Sequence
 
-The expected sequence was:
+1. Connected a Dell monitor (via DisplayPort), USB keyboard, and mouse to the Orin Nano
+2. Plugged the AC-DC converter barrel into the **Main Barrel** connector on the carrier board
+3. **Main LED** turned on immediately — power is reaching the board
+4. Pressed the **Jetson Power** button and flipped the **Drive-train Power Switch**
 
-1. **Main LED** turns on
-2. **Jetson Power** button is pressed
-3. **Drive-train Power Switch** is turned on
-4. **Status LEDs 1–3** illuminate
-5. Jetson green LED turns on
-6. Jetson fan starts spinning
+What I saw:
+- ✅ Status LEDs 1–3 lit up on the carrier board
+- ✅ Green LED on the Orin Nano module came on
+- ✅ Cooling fan spun up
 
 ![Power On — LEDs](assets/images/power_on_leds.jpg)
-<!-- Replace with carrier board LED photo -->
+<!-- carrier board with all status LEDs lit -->
 
-### RC Link Check
+### RC Link Test
 
-The RC handheld was powered on near the car.
-
-Expected result:
-
-- RC receiver LED turns **green**
-- **Status LED 4** turns on
+5. Powered on the **TQi RC handheld** and placed it near the car
+6. The RC receiver LED on the car turned **green** and **Status LED 4** came on — link established
+7. Turned off RC power immediately after confirming
 
 ![RC Link](assets/images/rc_link.jpg)
-<!-- Replace with RC link photo -->
+<!-- RC handheld next to the car with green receiver LED visible -->
 
 ### Ubuntu Boot
 
-After boot, the display showed:
+8. Waited approximately 2 minutes for the Jetson to complete POST
+9. Switched the Dell monitor input to **DisplayPort** (double-click 3rd button → Input Source → DisplayPort → OK)
+10. NVIDIA splash screen appeared, followed by the Ubuntu 22.04 login window
 
-- NVIDIA splash screen
-- Ubuntu login window
+![NVIDIA Boot Screen](assets/images/nvidia_boot.jpg)
+<!-- the car next to the monitor showing the NVIDIA splash -->
 
-![NVIDIA Boot Screen](assets/images/nvidia_boot_screen.jpg)
-<!-- Replace with boot screen image -->
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Full boot sequence — from power button press to Ubuntu login screen -->
+
+> ⚠️ **Safety:** Always place the car on a solid stand during power tests. Wheels will spin. Turn off all power switches before disconnecting any wires. Match red (+) to positive, black to GND.
 
 ---
 
-## 5. Ubuntu Login and Wi-Fi Setup
+## 05 · Ubuntu Setup
 
-The Jetson was logged into using the assigned team credentials and connected to lab Wi-Fi.
+### Login
 
-| Network | Password |
-|---------|----------|
-| `PinkPig` | `GetLost2022` |
-| `ECE_Lab` | `ECElab332` |
+Logged into Ubuntu with team credentials. Replace `XX` with your car number:
 
-After login, **Software & Updates** was opened and automatic updates were disabled by setting:
+| | Username | Password |
+|---|----------|----------|
+| Monday | `team1XX` | `robot1XXPA##!` |
+| Wednesday | `team3XX` | `robot3XXPA##@` |
 
-- **Automatically check for updates → Never**
+### Wi-Fi
+
+| Network | Password | Room |
+|---------|----------|------|
+| `PinkPig` | `GetLost2022` | PA 331 |
+| `ECE_Lab` | `ECElab332` | PA 332 |
+
+Connected to the lab Wi-Fi and confirmed internet access via Firefox.
+
+### Disabling Auto-Updates
+
+Opened **Software & Updates** → Updates tab → set "Automatically check for updates" to **Never**. On an embedded platform, background updates can eat bandwidth and break packages mid-project.
+
+### Terminal Setup
+
+Opened a terminal and pinned it to the Ubuntu Favorites bar. This is the primary interface for all autonomous driving work — GUI is mostly just for the initial setup.
 
 ![Ubuntu Desktop](assets/images/ubuntu_desktop.jpg)
-<!-- Replace with Ubuntu desktop screenshot -->
+<!-- screenshot of Ubuntu desktop with Terminal pinned to Favorites -->
 
 ---
 
-## 6. Linux Terminal Practice
+## 06 · Terminal Basics & File Management
 
-A terminal was opened and added to the favorites bar. Basic Linux commands for navigation, file management, and permissions were practiced.
-
-### Commands Used
+Created a working directory, moved the Week 1 scripts into it, and practiced Linux fundamentals:
 
 ```bash
-mkdir ~/Documents/week1
-cd ~/Documents/week1
+# Create a folder and navigate into it
+$ mkdir ~/Documents/week1
+$ cd ~/Documents/week1
 
-cp ~/Downloads/game.py .
+# Copy the game script from Downloads
+$ cp ~/Downloads/game.py .
 
-ls -l game.py
+# Check current permissions
+$ ls -l game.py
+  -rw-r--r-- 1 team105 team105 ... game.py
 
-chmod a+x game.py
+# Make it executable for all users
+$ chmod a+x game.py
 
-python3 game.py
+# Run it
+$ python3 game.py
+```
+
+The permission string `-rw-r--r--` means the owner can read/write, everyone else can only read. After `chmod a+x` it becomes `-rwxr-xr-x` — now everyone can execute it.
+
+![Terminal — Permissions](assets/images/terminal_permissions.jpg)
+<!-- terminal showing ls -l before and after chmod -->
+
+### Command Cheat Sheet
+
+| Command | What It Does |
+|---------|-------------|
+| `ls -al` | List all files (including hidden) with permissions |
+| `cd` / `cd ..` / `cd ~` | Navigate into folder / up one level / home |
+| `mkdir name` | Create a new directory |
+| `cp src dest` | Copy a file |
+| `mv src dest` | Move or rename |
+| `rm -r dir` | Delete a directory and its contents |
+| `grep pattern file` | Search for text inside a file |
+| `chmod 755 file` | Set permissions: owner rwx, others rx |
+| `Tab` | Auto-complete file/folder names |
+| `Ctrl+C` | Kill a running process |
+| `Ctrl+Z` | Suspend a process |
+| `Ctrl+D` | Exit the current shell |
+
+---
+
+## 07 · First Python Script
+
+Created `compute.py` with `gedit` to verify the Python 3 toolchain:
+
+```bash
+$ gedit compute.py
+```
+
+```python
+# simple computation by python
+a = 10
+b = 5
+c = a * b
+print("c = " + str(c))
+```
+
+```bash
+$ python3 compute.py
+c = 50
+```
+
+Small thing, but it confirms Python 3 is installed and the user environment works. From here, you can install ROS 2, OpenCV, or whatever the autonomous stack needs.
+
+![compute.py Output](assets/images/compute_output.jpg)
+<!-- terminal showing python3 compute.py with output -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Writing compute.py in gedit, saving, running in terminal -->
+
+---
+
+## 08 · Carrier Board — LU v2.1
+
+The carrier board is a custom PCB that sits between the Jetson and the Traxxas chassis. It handles everything the Jetson can't do natively — power regulation, motor control signals, sensor routing, and status monitoring.
+
+![Carrier Board](assets/images/carrier_board.jpg)
+<!-- annotated photo of the carrier board with labels on each block -->
+
+| Block | Function |
+|-------|----------|
+| **Main Power** | Barrel connector input, voltage regulation, battery level checker |
+| **Jetson Signal Interface** | Routes GPIO, I2C, UART between carrier and Orin Nano header |
+| **Drive Control** | PWM output signals to the motor ESC and steering servo |
+| **Sensing & Control** | Connectors for external sensors |
+| **Comm Ports** | I2C and UART breakout headers for peripherals |
+| **External IMU Interface** | Dedicated connector for an inertial measurement unit |
+| **Status LEDs 1–4** | Indicate: power good, drive-train active, Jetson alive, RC link |
+| **Mode Switch** | Selects between operating modes |
+| **0.92″ OLED Screen** | Displays IP address, WiFi name, and real-time status |
+
+---
+
+# Week 2 — Teleop, PWM Tuning & ROS 2
+
+## 09 · Battery Testing & Charging
+
+The car uses two types of rechargeable batteries:
+
+| Battery | Spec | Connector | Car Slot |
+|---------|------|-----------|----------|
+| **LiPo** | OVONIC 11.1V 1400mAh 3S 50C | XT60 power + 4-pin JST XH balance | Left |
+| **NiMH** | Traxxas 7.2V 1200mAh 6-cell | Traxxas connector | Right |
+
+### Voltage Measurement
+
+Measured both batteries with the Fluke 8800A in **DC V** mode. Compared readings against label values. Then cross-checked the LiPo with a standalone battery tester — both readings matched.
+
+| Parameter | LiPo (3S) | NiMH (6-cell) |
+|-----------|-----------|---------------|
+| Nominal voltage | 11.1V (3.7V × 3) | 7.2V (1.2V × 6) |
+| Fully charged | ~12.6V (4.2V/cell) | ~8.4V (1.4V/cell) |
+| Capacity | 1400mAh | 1200mAh |
+| C rating | 50C → 70A max burst | — |
+| Low voltage warning | ~9.9V (3.3V/cell) | — |
+
+The **C rating** determines max safe discharge: 50C × 1.4A = 70A burst. The battery checker on the carrier board warns when the LiPo drops below ~3.3V/cell.
+
+![Battery Tester](assets/images/battery_tester.jpg)
+<!-- standalone tester connected to LiPo showing cell voltages -->
+
+![DMM on Battery](assets/images/battery_dmm.jpg)
+<!-- DMM probes measuring LiPo terminal voltage -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Measuring battery voltage with DMM and tester side by side -->
+
+### Charging the LiPo — OVONIC X1 200W Charger
+
+1. Plug the charger into the AC wall outlet
+2. Connect the **4-pin JST XH balance lead** from the battery to the **rightmost pins** of the charger's JST port
+3. Plug the **yellow XT60 power connector** into the charger's **center port**
+4. In the charger setup screen, change the default charging amps — **set to 1A** (1000mAh) for safe charging
+5. Start the charge cycle and wait for completion
+
+> ⚠️ The JST balance connector **must align to the right side** of the charger port. The charger has two channels — left is CH A, right is CH B. Getting this wrong can damage the battery.
+
+![LiPo Charger](assets/images/lipo_charger.jpg)
+<!-- OVONIC charger with LiPo connected, JST on right side -->
+
+### Charging the NiMH — Traxxas EZ-Peak Dual
+
+1. Plug the **Traxxas connector** from the NiMH battery into the charger
+2. Press and hold the **blue glowing button** until you hear a **long beep**
+3. The battery is now charging — if no long beep, the connection isn't right
+
+![NiMH Charger](assets/images/nimh_charger.jpg)
+<!-- Traxxas EZ-Peak with NiMH battery plugged in -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Charging both batteries — LiPo on OVONIC, NiMH on Traxxas -->
+
+### Battery Placement in the Car
+
+- **NiMH** → right battery slot. Traxxas connector plugs into the drive-train
+- **LiPo** → left battery slot. 4-pin JST balance lead connects to the carrier board
+- Push batteries into slots, close the covers, tuck all cables away from the wheels
+- The battery checker on the carrier board should **beep loudly** and display **~11.1V** before you proceed
+
+![Battery Placement](assets/images/battery_placement.jpg)
+<!-- both batteries installed in their slots, covers closed -->
+
+### Battery Best Practices
+
+- **Never fully drain a LiPo** — deep discharge below 3.0V/cell permanently damages the cells
+- **Charge at 1C or below** — 1A for a 1400mAh pack. Faster charging degrades battery life
+- **Rubber-band a battery** after it's fully charged so you can tell which ones are ready at a glance
+- **Unplug all batteries** when leaving the lab — even a slow parasitic drain overnight degrades LiPo chemistry
+- **Storage voltage** — if not using for an extended period, store LiPo at ~3.8V/cell (~11.4V for 3S)
+
+---
+
+## 10 · OLED Display Setup
+
+The carrier board has a **0.92″ OLED screen** (128×32 pixels, I2C interface, Waveshare module) that displays the car's IP address and WiFi network name — essential for SSH access later.
+
+### Setup
+
+Extracted `startup_files.zip` to the home directory. Verified the files are in place:
+
+```bash
+$ cd ~
+$ ls
+  startupOLED.sh  startupOLED/  ...
+```
+
+The `startupOLED/` folder contains a Python script that communicates with the OLED over I2C using the `smbus` library.
+
+### Running It
+
+```bash
+$ ./startupOLED.sh &
+```
+
+The `&` runs it in the background and prints a process ID. The OLED should now display the WiFi name and IP address.
+
+If you see `ModuleNotFoundError: No module named 'smbus'`:
+```bash
+$ pip3 install smbus
+$ ./startupOLED.sh &
+```
+
+![OLED Running](assets/images/oled_running.jpg)
+<!-- OLED on the carrier board showing IP address and WiFi name -->
+
+### How the Shell Script Works
+
+Opened `startupOLED.sh` in a text editor. It's a simple shell script that calls the Python program inside the `startupOLED/` folder, which initializes the I2C bus, reads the system's IP and WiFi info, and writes it to the OLED display buffer.
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Running startupOLED.sh and seeing the IP appear on the OLED -->
+
+---
+
+## 11 · Teleop — Manual Driving
+
+This is the first time the car actually moves. Using a Python script with **PyGame** for keyboard input, you can manually drive the car with WASD keys.
+
+### Drive-Train Setup
+
+1. Connect the **NiMH battery** to the Traxxas connector on the car
+2. Press the small button on the **ESC** (Electronic Speed Controller) — its LED should light up green or start flashing
+3. Turn on the **RC handheld** power switch and place it near the car — the RC receiver LED should turn green
+4. Turn the **Drive-train Power Switch** on. If the RC LED isn't on, try toggling the switch off and back on
+5. Verify that both the **ESC PWR** and **deadman** indicator lights on the carrier board are lit
+
+![ESC Button](assets/images/esc_button.jpg)
+<!-- ESC with its button and green LED -->
+
+![RC Setup](assets/images/rc_setup.jpg)
+<!-- RC handheld next to the car, receiver LED visible -->
+
+### Safety Before Running
+
+Place the car **securely on a Lego block or stand** with all four wheels lifted off the table. The wheels spin fast. Make sure monitor cables, keyboard cable, and mouse cable are all routed **away from the wheels** — they will get tangled and damaged otherwise.
+
+### Running Teleop
+
+```bash
+$ cd ~/Documents/Week2
+$ chmod +x *.py
+$ python3 teleop.py
+```
+
+A small black **PyGame window** appears on the monitor. Click inside the window once to give it focus, then use the keyboard:
+
+| Key | Action |
+|-----|--------|
+| `W` | Forward |
+| `A` | Turn left |
+| `S` | Backward |
+| `D` | Turn right |
+
+Exit by closing the PyGame window or pressing `Ctrl+C` in the terminal.
+
+![Teleop Running](assets/images/teleop_running.jpg)
+<!-- car on a block with wheels spinning, PyGame window visible on monitor -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: WASD teleop — driving the car on the block, wheels spinning -->
+
+### Troubleshooting
+
+- **Car doesn't respond to keypresses?** Check that the ESC LED is green. If not, press the ESC button again.
+- **RC receiver not lit?** Check the RC handheld battery. Toggle the Drive-train Power switch off and on.
+- **PyGame window not accepting input?** Click inside the black window to give it keyboard focus.
+
+---
+
+## 12 · PWM Motor Tuning
+
+The **servo PWM** port controls steering, and the **motor PWM** port controls speed through the ESC. Each car is built slightly differently, so you need to find the exact PWM parameters for your specific car.
+
+### How PWM Works on the E116
+
+The PWM signal runs at **200 Hz**. The duty cycle is controlled by an **unsigned 8-bit integer** (0–255), mapping to 0–100% duty. This means the minimum step size is 100/256 ≈ 0.39%.
+
+The motor has a **deadband** in its PWM input — a range of duty cycles where the motor doesn't move. This prevents the car from jumping between forward and backward. There are also **transition bands** at the edges of the deadband where the motor just barely starts moving. Finding these edges is the goal of this step.
+
+### Running the Tuning Script
+
+```bash
+$ cd ~/Documents/Week2
+$ python3 pwm_motor.py
+```
+
+The program prompts you to enter duty cycle values. You can type exact numbers (up to 2 decimal places) or use `+` and `-` for fine-tuning in **0.01% increments**. For each value entered, the car runs for 0.6 seconds then stops.
+
+**Starting ranges to explore:**
+
+| Parameter | Range |
+|-----------|-------|
+| `motor_forward_start` | 30.00 – 31.50 |
+| `motor_backward_start` | 29.00 – 27.50 |
+
+### What to Look For
+
+Search for the value where the motor **just barely starts moving**. If one more `+` or `-` press stops it again, you've found the edge. The initial PWM duty is set to 29.70%.
+
+Type `ok` when finished — the program prints the final values. **Record these** — you need them for steering calibration next.
+
+![PWM Motor Results](assets/images/pwm_motor_results.jpg)
+<!-- terminal showing final forward_start and backward_start values -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Running pwm_motor.py, entering values, watching wheels respond -->
+
+---
+
+## 13 · Steering Calibration via SSH
+
+This step finds the **servo_center** PWM value that makes the car drive in a straight line. Since this involves driving the car on the floor untethered, you need to control it remotely via SSH from a host laptop.
+
+### Preparing the Car
+
+1. Open `pwm_steering.py` in a text editor. Update:
+   - **Line 26** → your `motor_forward_start` value from Step 12
+   - **Line 27** → your `motor_backward_start` value
+   - **Line 28** → desired speed (leave at 2 initially)
+2. Note the car's **IP address** from the OLED (run `./startupOLED.sh &` if needed)
+3. Install both batteries: **NiMH** in right slot, **LiPo** in left slot
+4. Close covers, tuck cables. Battery checker should show **~11.1V**
+5. Disconnect the AC-DC adapter, monitor, keyboard, and mouse from the car
+6. Turn on the **RC handheld**, press the **ESC button**, and switch on **Drive PWR**
+
+### SSH from Your Laptop
+
+Both your laptop and the car must be on the **same WiFi network**.
+
+**Ubuntu:**
+```bash
+$ ssh -X team1XX@<CAR_IP_ADDRESS>
+```
+
+**Windows:** Download [MobaXterm](https://mobaxterm.mobatek.net/download-home-edition.html). Go to Settings → SSH → enable **graphical SSH-browser** and **auto-switch to SSH tab**. Create a new SSH session with the car's IP and your team username.
+
+![SSH — MobaXterm](assets/images/ssh_mobaxterm.jpg)
+<!-- MobaXterm SSH settings and session window -->
+
+### Running the Calibration
+
+```bash
+$ cd ~/Documents/Week2
+$ python3 pwm_steering.py
+```
+
+The program prompts for a **servo_center** value (default: 29.7). When you enter a value, the front wheels turn to the corresponding angle. Place the car on the floor with wheels aligned to the tile edges. Press `S` to run the car — it drives for 0.6–1.2 seconds then stops.
+
+Observe how straight it runs. Adjust the value, press `S` again. Repeat until the car drives straight. Press `ok` to exit.
+
+**Optional tweaks:** edit Line 28 (speed) or Line 62 (duration) in `pwm_steering.py` to test at different speeds.
+
+![Steering Test](assets/images/steering_test.jpg)
+<!-- car on the floor driving straight along tile lines -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Steering calibration — SSH terminal + car driving on the floor -->
+
+### Cleanup
+
+1. Type `exit` in the SSH terminal
+2. Reconnect the AC-DC adapter to the car **before** disconnecting batteries (hot power switch — keeps the Jetson running)
+3. Then unplug the batteries
+4. **Switch off the RC handheld**
+
+---
+
+## 14 · ROS 2 Humble — Getting Started
+
+ROS 2 Humble is pre-installed on the Jetson. This section covers environment configuration, the turtlesim demo (nodes, topics, pub/sub), and building a workspace with colcon.
+
+### One-Time Environment Setup
+
+```bash
+$ echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+$ echo "export ROS_LOCALHOST_ONLY=1" >> ~/.bashrc
+$ source ~/.bashrc
+```
+
+This adds ROS 2 sourcing to your shell config so every new terminal is automatically configured.
+
+### Turtlesim — Nodes, Topics & Messages
+
+Turtlesim is a simple graphical simulator that demonstrates ROS 2 concepts. You need **4 terminals** for this:
+
+**Terminal 1** — Launch the turtlesim window:
+```bash
+$ ros2 run turtlesim turtlesim_node
+```
+
+**Terminal 2** — Drive the turtle with arrow keys:
+```bash
+$ ros2 run turtlesim turtle_teleop_key
+```
+
+**Terminal 3** — Inspect the ROS 2 graph:
+```bash
+$ ros2 node list          # shows active nodes
+$ ros2 topic list         # shows active topics
+$ ros2 node info /turtlesim
+$ ros2 topic echo /turtle1/cmd_vel    # shows velocity commands in real-time
+```
+
+**Terminal 4** — Launch the ROS 2 graph visualizer:
+```bash
+$ rqt_graph
+```
+
+This shows how nodes connect through topics. The `/teleop_turtle` node publishes `geometry_msgs/msg/Twist` messages on `/turtle1/cmd_vel`, which the `/turtlesim` node subscribes to.
+
+### Publishing Directly from the Terminal
+
+```bash
+$ ros2 topic pub /turtle1/cmd_vel geometry_msgs/msg/Twist \
+  "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
+```
+
+This makes the turtle drive in a circle. The `linear.x` field controls forward speed, `angular.z` controls rotation. Try negative values and observe what happens — negative `x` drives backward, negative `z` turns the other way.
+
+![Turtlesim](assets/images/turtlesim.jpg)
+<!-- turtlesim window with the turtle drawing a path -->
+
+![RQT Graph](assets/images/rqt_graph.jpg)
+<!-- rqt_graph showing node/topic connections -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: Turtlesim demo — teleop, topic echo, and direct publishing -->
+
+### Building a ROS 2 Workspace with Colcon
+
+Created a workspace directory, cloned the ROS 2 examples, and built everything:
+
+```bash
+$ mkdir -p ~/ros2_ws/src
+$ cd ~/ros2_ws
+$ git clone https://github.com/ros2/examples src/examples -b humble
+$ colcon build --symlink-install
+$ colcon test
+$ source install/local_setup.bash
+```
+
+If `colcon` isn't found: `sudo apt install python3-colcon-common-extensions`
+
+### Publisher/Subscriber Test
+
+Ran the minimal C++ pub/sub example to verify the build:
+
+**Terminal 1** — Subscriber (waits for messages):
+```bash
+$ ros2 run examples_rclcpp_minimal_subscriber subscriber_member_function
+```
+
+**Terminal 2** — Publisher (sends numbered messages):
+```bash
+$ ros2 run examples_rclcpp_minimal_publisher publisher_member_function
+```
+
+The subscriber prints each message as it arrives — confirms the ROS 2 middleware, build system, and node communication are all working.
+
+![ROS 2 Pub/Sub](assets/images/ros2_pubsub.jpg)
+<!-- two terminals side by side showing publisher and subscriber output -->
+
+https://github.com/user-attachments/assets/VIDEO_ID_HERE
+<!-- VIDEO: colcon build, then running publisher + subscriber in split terminals -->
+
+---
+
+## Safety
+
+> **Car on a stand** when drive-train is powered — wheels spin fast and the car will launch off the bench.  
+> **Power off** before disconnecting anything — hotplugging DC can arc and damage connectors.  
+> **Match polarity every time** — reversing a LiPo kills the battery and the board.  
+> **Unplug all batteries and switch off RC handheld** when done.  
+> **Keep cables away from wheels** during teleop — they will get tangled.  
+> **Hold connectors, not wires** when unplugging.
+
+---
+
+## What's Next
+
+- Autonomous driving with **RealSense D435** depth streaming
+- Custom **motor control ROS 2 node** publishing PWM via the carrier board
+- Full **colcon workspace** for E116-specific packages
+- **Camera calibration** and obstacle avoidance
+- **SLAM** or visual odometry for autonomous navigation
+
+---
+
+## Repo Structure
+
+```
+.
+├── README.md
+├── index.html                  ← GitHub Pages styled build log
+├── assets/
+│   ├── images/
+│   │   ├── lab_setup.jpg
+│   │   ├── car_top_view.jpg
+│   │   ├── car_side_view.jpg
+│   │   ├── ac_measurement.jpg
+│   │   ├── dc_measurement.jpg
+│   │   ├── inspection_wiring.jpg
+│   │   ├── inspection_mounting.jpg
+│   │   ├── power_on_leds.jpg
+│   │   ├── rc_link.jpg
+│   │   ├── nvidia_boot.jpg
+│   │   ├── ubuntu_desktop.jpg
+│   │   ├── terminal_permissions.jpg
+│   │   ├── compute_output.jpg
+│   │   ├── carrier_board.jpg
+│   │   ├── battery_tester.jpg
+│   │   ├── battery_dmm.jpg
+│   │   ├── lipo_charger.jpg
+│   │   ├── nimh_charger.jpg
+│   │   ├── battery_placement.jpg
+│   │   ├── oled_running.jpg
+│   │   ├── esc_button.jpg
+│   │   ├── rc_setup.jpg
+│   │   ├── teleop_running.jpg
+│   │   ├── pwm_motor_results.jpg
+│   │   ├── ssh_mobaxterm.jpg
+│   │   ├── steering_test.jpg
+│   │   ├── turtlesim.jpg
+│   │   ├── rqt_graph.jpg
+│   │   └── ros2_pubsub.jpg
+│   └── videos/
+│       ├── dmm_measurement.mp4
+│       ├── boot_sequence.mp4
+│       ├── compute_demo.mp4
+│       ├── battery_measurement.mp4
+│       ├── battery_charging.mp4
+│       ├── oled_startup.mp4
+│       ├── teleop_wasd.mp4
+│       ├── pwm_motor_tuning.mp4
+│       ├── steering_calibration.mp4
+│       ├── turtlesim_demo.mp4
+│       └── ros2_pubsub.mp4
+└── src/
+    ├── compute.py
+    ├── teleop.py
+    ├── pwm_motor.py
+    └── pwm_steering.py
+```
+
+## Deploy
+
+Enable GitHub Pages: **Settings → Pages → Source → main branch → / (root)**.  
+Live at `https://YOUR_USERNAME.github.io/REPO_NAME/`.

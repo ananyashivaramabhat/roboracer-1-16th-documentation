@@ -1,4 +1,4 @@
-# E116 // Build Log
+# E116 Build Log
 
 > **[View the styled build log →](https://YOUR_USERNAME.github.io/E116-BuildLog/)**
 
@@ -47,7 +47,6 @@ The entire car was inspected before first power-on:
 
 After these fixes, everything was found to be in order and the system was ready for power-on.
 
----
 
 ## 04 · First Power-On & Boot
 
@@ -63,17 +62,9 @@ The following was observed:
 - ✅ Green LED on the Orin Nano module came on
 - ✅ Cooling fan spun up
 
-This is a video showing the powering process:
+Video Demonstrating the power on process:
+[Power On](https://drive.google.com/file/d/1E8DUts9J0zCCFHP2B0FsvDB4nNnh1jJv/view?usp=drive_link)
 
-
-### RC Link Test
-
-5. The **TQi RC handheld** was powered on and placed near the car
-6. The RC receiver LED on the car turned **green** and **Status LED 4** came on — confirming that the link was established
-7. RC power was turned off immediately after confirmation
-
-![RC Link](assets/images/rc_link.jpg)
-<!-- RC handheld next to the car with green receiver LED visible -->
 
 ### Ubuntu Boot
 
@@ -81,15 +72,8 @@ This is a video showing the powering process:
 9. The Dell monitor input was switched to **DisplayPort** (double-click 3rd button → Input Source → DisplayPort → OK)
 10. The NVIDIA splash screen appeared, followed by the Ubuntu 22.04 login window
 
-![NVIDIA Boot Screen](assets/images/nvidia_boot.jpg)
-<!-- the car next to the monitor showing the NVIDIA splash -->
-
-https://github.com/user-attachments/assets/VIDEO_ID_HERE
-<!-- VIDEO: Full boot sequence — from power button press to Ubuntu login screen -->
-
 > ⚠️ **Safety:** Always place the car on a solid stand during power tests. Wheels will spin. Turn off all power switches before disconnecting any wires. Match red (+) to positive, black to GND.
 
----
 
 ## 05 · Ubuntu Setup
 
@@ -108,8 +92,6 @@ Ubuntu was logged into using the team credentials shown below. Replace `XX` with
 |---------|----------|------|
 | `PinkPig` | `GetLost2022` | PA 331 |
 | `ECE_Lab` | `ECElab332` | PA 332 |
-
-The system was connected to the lab Wi-Fi and internet access was confirmed via Firefox.
 
 ### Disabling Auto-Updates
 
@@ -193,13 +175,6 @@ c = 50
 ```
 
 This confirmed that Python 3 was installed and that the user environment was functioning correctly. From here, ROS 2, OpenCV, or other required packages could be installed for the autonomous stack.
-
-![compute.py Output](assets/images/compute_output.jpg)
-<!-- terminal showing python3 compute.py with output -->
-
-https://github.com/user-attachments/assets/VIDEO_ID_HERE
-<!-- VIDEO: Writing compute.py in gedit, saving, running in terminal -->
-
 ---
 
 ## 08 · Carrier Board — LU v2.1
@@ -248,15 +223,6 @@ Both batteries were measured with the Fluke 8800A in **DC V** mode. The readings
 
 The **C rating** determines max safe discharge: 50C × 1.4A = 70A burst. The battery checker on the carrier board warns when the LiPo drops below ~3.3V/cell.
 
-![Battery Tester](assets/images/battery_tester.jpg)
-<!-- standalone tester connected to LiPo showing cell voltages -->
-
-![DMM on Battery](assets/images/battery_dmm.jpg)
-<!-- DMM probes measuring LiPo terminal voltage -->
-
-https://github.com/user-attachments/assets/VIDEO_ID_HERE
-<!-- VIDEO: Measuring battery voltage with DMM and tester side by side -->
-
 ### Charging the LiPo — OVONIC X1 200W Charger
 
 1. Plug the charger into the AC wall outlet
@@ -267,8 +233,8 @@ https://github.com/user-attachments/assets/VIDEO_ID_HERE
 
 > ⚠️ The JST balance connector **must align to the right side** of the charger port. The charger has two channels — left is CH A, right is CH B. Getting this wrong can damage the battery.
 
-![LiPo Charger](assets/images/lipo_charger.jpg)
-<!-- OVONIC charger with LiPo connected, JST on right side -->
+This is a small video tutorial demonstrating the charging of the LiPo Battery:
+[LiPo_Battery](https://drive.google.com/file/d/1cydfc8hBBwhlKvfri_qyy3cxz_BFVL4y/view?usp=drive_link)
 
 ### Charging the NiMH — Traxxas EZ-Peak Dual
 
@@ -606,75 +572,7 @@ https://github.com/user-attachments/assets/VIDEO_ID_HERE
 > **Keep cables away from wheels** during teleop — they will get tangled.  
 > **Hold connectors, not wires** when unplugging.
 
----
-
-## What's Next
-
-- Autonomous driving with **RealSense D435** depth streaming
-- Custom **motor control ROS 2 node** publishing PWM via the carrier board
-- Full **colcon workspace** for E116-specific packages
-- **Camera calibration** and obstacle avoidance
-- **SLAM** or visual odometry for autonomous navigation
-
----
-
-## Repo Structure
-
-```
-.
-├── README.md
-├── index.html                  ← GitHub Pages styled build log
-├── assets/
-│   ├── images/
-│   │   ├── lab_setup.jpg
-│   │   ├── car_top_view.jpg
-│   │   ├── car_side_view.jpg
-│   │   ├── ac_measurement.jpg
-│   │   ├── dc_measurement.jpg
-│   │   ├── inspection_wiring.jpg
-│   │   ├── inspection_mounting.jpg
-│   │   ├── power_on_leds.jpg
-│   │   ├── rc_link.jpg
-│   │   ├── nvidia_boot.jpg
-│   │   ├── ubuntu_desktop.jpg
-│   │   ├── terminal_permissions.jpg
-│   │   ├── compute_output.jpg
-│   │   ├── carrier_board.jpg
-│   │   ├── battery_tester.jpg
-│   │   ├── battery_dmm.jpg
-│   │   ├── lipo_charger.jpg
-│   │   ├── nimh_charger.jpg
-│   │   ├── battery_placement.jpg
-│   │   ├── oled_running.jpg
-│   │   ├── esc_button.jpg
-│   │   ├── rc_setup.jpg
-│   │   ├── teleop_running.jpg
-│   │   ├── pwm_motor_results.jpg
-│   │   ├── ssh_mobaxterm.jpg
-│   │   ├── steering_test.jpg
-│   │   ├── turtlesim.jpg
-│   │   ├── rqt_graph.jpg
-│   │   └── ros2_pubsub.jpg
-│   └── videos/
-│       ├── dmm_measurement.mp4
-│       ├── boot_sequence.mp4
-│       ├── compute_demo.mp4
-│       ├── battery_measurement.mp4
-│       ├── battery_charging.mp4
-│       ├── oled_startup.mp4
-│       ├── teleop_wasd.mp4
-│       ├── pwm_motor_tuning.mp4
-│       ├── steering_calibration.mp4
-│       ├── turtlesim_demo.mp4
-│       └── ros2_pubsub.mp4
-└── src/
-    ├── compute.py
-    ├── teleop.py
-    ├── pwm_motor.py
-    └── pwm_steering.py
-```
-
-## Deploy
+-
 
 Enable GitHub Pages: **Settings → Pages → Source → main branch → / (root)**.  
 Live at `https://YOUR_USERNAME.github.io/REPO_NAME/`.

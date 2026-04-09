@@ -94,7 +94,6 @@ Some of the battery best practices we learned are:
 - **Storage voltage** — if not using for an extended period, store LiPo at ~3.8V/cell (~11.4V for 3S)
 
 
-
 ## Powering on the car
 
 The car was powered on, following these steps:
@@ -336,19 +335,11 @@ In some cases, it helped to tune Line 28 (speed) or Line 62 (duration) in `pwm_s
 TODO: Enter video
 
 
+## ROS 2 Humble on the E116 Vehicle
 
+ROS 2 Humble was installed on the Jetson in a previous step. 
 
-
----
----
----
----
-
-## 14 · ROS 2 Humble — Getting Started
-
-ROS 2 Humble was pre-installed on the Jetson. This section covers environment configuration, the turtlesim demo (nodes, topics, pub/sub), and building a workspace with colcon.
-
-### One-Time Environment Setup
+Before any ROS-related project, the following commands were run once to ensure the ROS 2 underlay is sourced in every new terminal.
 
 ```bash
 $ echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
@@ -356,54 +347,45 @@ $ echo "export ROS_LOCALHOST_ONLY=1" >> ~/.bashrc
 $ source ~/.bashrc
 ```
 
-This adds ROS 2 sourcing to your shell config so every new terminal is automatically configured.
-
-### Turtlesim — Nodes, Topics & Messages
+### Exploring ROS 2 with Turtlesim
 
 Turtlesim is a simple graphical simulator that demonstrates ROS 2 concepts. You need **4 terminals** for this:
 
-**Terminal 1** — Launch the turtlesim window:
+**Terminal 1** - Launched the turtlesim window:
 ```bash
 $ ros2 run turtlesim turtlesim_node
 ```
 
-**Terminal 2** — Drive the turtle with arrow keys:
+**Terminal 2** - Drove the turtle with arrow keys:
 ```bash
 $ ros2 run turtlesim turtle_teleop_key
 ```
 
-**Terminal 3** — Inspect the ROS 2 graph:
+**Terminal 3** - Inspected the ROS 2 graph:
 ```bash
-$ ros2 node list          # shows active nodes
-$ ros2 topic list         # shows active topics
+$ ros2 node list          # showed active nodes
+$ ros2 topic list         # showed active topics
 $ ros2 node info /turtlesim
-$ ros2 topic echo /turtle1/cmd_vel    # shows velocity commands in real-time
+$ ros2 topic echo /turtle1/cmd_vel    # showed velocity commands in real-time
 ```
 
-**Terminal 4** — Launch the ROS 2 graph visualizer:
+**Terminal 4** - Launched the ROS 2 graph visualizer:
 ```bash
 $ rqt_graph
 ```
 
-This shows how nodes connect through topics. The `/teleop_turtle` node publishes `geometry_msgs/msg/Twist` messages on `/turtle1/cmd_vel`, which the `/turtlesim` node subscribes to.
+This showed how nodes connect through topics. The `/teleop_turtle` node publishes `geometry_msgs/msg/Twist` messages on `/turtle1/cmd_vel`, which the `/turtlesim` node subscribes to.
 
-### Publishing Directly from the Terminal
+Alternatively, we can publish directly from the terminal:
 
 ```bash
 $ ros2 topic pub /turtle1/cmd_vel geometry_msgs/msg/Twist \
   "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
 ```
 
-This makes the turtle drive in a circle. The `linear.x` field controls forward speed, `angular.z` controls rotation. Try negative values and observe what happens — negative `x` drives backward, negative `z` turns the other way.
+This makes the turtle drive in a circle. The `linear.x` field controls forward speed, `angular.z` controls rotation. Negative `x` drives backward, negative `z` turns the other way.
 
-![Turtlesim](assets/images/turtlesim.jpg)
-<!-- turtlesim window with the turtle drawing a path -->
-
-![RQT Graph](assets/images/rqt_graph.jpg)
-<!-- rqt_graph showing node/topic connections -->
-
-https://github.com/user-attachments/assets/VIDEO_ID_HERE
-<!-- VIDEO: Turtlesim demo — teleop, topic echo, and direct publishing -->
+TODO: Put video here
 
 ### Building a ROS 2 Workspace with Colcon
 
@@ -417,8 +399,6 @@ $ colcon build --symlink-install
 $ colcon test
 $ source install/local_setup.bash
 ```
-
-If `colcon` isn't found: `sudo apt install python3-colcon-common-extensions`
 
 ### Publisher/Subscriber Test
 
@@ -434,13 +414,105 @@ $ ros2 run examples_rclcpp_minimal_subscriber subscriber_member_function
 $ ros2 run examples_rclcpp_minimal_publisher publisher_member_function
 ```
 
-The subscriber prints each message as it arrives — confirms the ROS 2 middleware, build system, and node communication are all working.
+The subscriber prints each message as it arrives, confirming the ROS 2 middleware, build system, and node communication are all working.
 
-![ROS 2 Pub/Sub](assets/images/ros2_pubsub.jpg)
-<!-- two terminals side by side showing publisher and subscriber output -->
+TODO: Put video here
 
-https://github.com/user-attachments/assets/VIDEO_ID_HERE
-<!-- VIDEO: colcon build, then running publisher + subscriber in split terminals -->
+TODO: 
+> Questions to check concepts
+> Q2.1 What does PWM stand for in the E116? What is the frequency of the PWM used on E116? What is the duty cycle of a PWM? 
+> 
+> Q2.2. How many numbers can be represented by an 8-bit integer? What is the step size if you represent 0 - 100 by an unsigned 8-bit integer?
+> 
+> Q2.3 What are the values of PWM parameters for your car? motor_forward_start, motor_backward_start, and servo_center.
+> 
+> Q2.4 What is the Robotics Operating System (ROS)? What is the version of ROS installed on the Jetson device? 
+> 
+> Q2.5 What is the difference between a topic and a node in ROS 2? What is the difference between a publisher and a subscriber in ROS 2?
+> 
+
+
+
+# Week 3 - Computer Vision and Teleop on E116
+
+We started by creating a new ROS workspace and package.
+
+```bash
+$ mkdir -p ~/team_ws/src
+$ cd ~/team_ws/src
+$ ros2 pkg create --build-type ament_python e116
+```
+
+Other files and folders were added to the ```e116``` package to create the folder structure and files in the code under Week 3. This was double checked using the following commands:
+
+```bash
+$ cd ~/team_ws/src/e116
+$ls -l
+```
+
+The output should be something like:
+
+```bash
+team100@ubuntu:~/team_ws/src/e116$ ls -l
+total 44
+drwxrwxr-x 2 team100 team100 4096 Mar  5 03:41 config
+drwxrwxr-x 3 team100 team100 4096 Mar  5 03:46 e116
+drwxrwxr-x 5 team100 team100 4096 Mar  4 18:48 launch
+-rw-rw-r-- 1 team100 team100  856 Mar  4 18:48 package.xml
+drwxrwxr-x 2 team100 team100 4096 Mar  4 18:48 resource
+-rw-rw-r-- 1 team100 team100   77 Mar  4 18:48 setup.cfg
+-rw-rw-r-- 1 team100 team100 1169 Mar  5 03:30 setup.py
+drwxrwxr-x 2 team100 team100 4096 Mar  4 18:48 test
+```
+
+Then, the following commands were run to allow permissions:
+```bash
+$ cd ~/team_ws/src
+$ chmod +x ~/team_ws/src/e116/e116/*.py              
+$ chmod +x ~/team_ws/src/e116/launch/*.launch.py
+```
+
+And then, the following commands were run to clone the April Tag libraries and ROS wrapper, to enable April Tag detection:
+```bash
+$ git clone https://github.com/AprilRobotics/apriltag.git
+$ git clone https://github.com/christianrauch/apriltag_ros.git
+$ git clone https://github.com/christianrauch/apriltag_msgs.git
+```
+The file structure should look as follows:
+```bash
+team100@ubuntu:~/roboracer_116_lehigh/team_ws/src$  ls -l
+total 28
+drwxrwxr-x  7 team100 team100 4096 Mar 16 01:01 apriltag
+drwxrwxr-x  4 team100 team100 4096 Mar 16 01:02 apriltag_msgs
+drwxrwxr-x  6 team100 team100 4096 Mar 16 01:02 apriltag_ros
+drwxrwxr-x 10 team100 team100 4096 Mar  5 03:30 e116
+```
+
+The config file in ```~/team_ws/src/e116/config/tags_36h11.yaml``` was moved to ```~/team_ws/src/apriltag_ros/cfg/```. And similarly, the launch file in ```/team_ws/src/e116/launch/rs2camera.launch.yml```  was moved to ```~/team_ws/src/apriltag_ros/launch/```.
+
+Next, we put the tuning parameters found in Week 2 into the ROS 2 configuration files. The file ```~/team_ws/src/e116/config/e116.yaml``` was edited with the new ```motor_forward_start```, ```motor_backward_start```, and ```servo_center``` values.
+
+The following was run to build the packages:
+```bash
+$ cd ~/team_ws
+$ rosdep install --from-paths src --ignore-src -r -y     #install any missing packages
+$ colcon build
+```
+
+
+
+
+TODO:
+> Questions to check concepts:
+> Q1.1 What is the name of the workspace? What is the name of the package you created?  What command did you use to create a new ROS package? 
+> Q1.2 What folders does “ros2 pkg create” generate in the /src/ folder?  What folders does colcon build generate the first time you run it?
+> Q1.3 What happens if you don’t “source install/setup.bash”?
+> Q1.4 How do you change the attributes of the launch files in the E116 package to be executable?
+> Q2.1. What kind of camera does the E116 car use? 
+> Q2.2. What is an AprilTag? What format of the tag did you use in this lab?
+> Q2.3. What colors correspond to the x, y, z axes in the RViz display of the AprilTag? 
+
+
 
 ---
 

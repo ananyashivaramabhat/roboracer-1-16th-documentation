@@ -201,10 +201,10 @@ The E116 controls **yaw** via the steering servo and longitudinal speed via the 
 
 ---
 
-### Week 2 — Demo Video
+### Demo Video
 
 > **[VIDEO PLACEHOLDER]** *Teleop*
-@ANANYA PLS PUT AN EDITED VIDEO OF TELEOP HERE
+@ANANYA PLS PUT AN EDITED VIDEO OF TELEOP HERE - See the Teleop video folder
 
 
 > **[VIDEO PLACEHOLDER]** *PWM Tuning*
@@ -417,9 +417,10 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 
 ---
 
-### Week 4 - Demo Video
+### Demo Video
 
-> **[VIDEO PLACEHOLDER]** *SSH terminal on host laptop showing live ROS log output while the car drives autonomously — confirming remote operation.*
+> **[VIDEO PLACEHOLDER]** *Follow the Gap with April Tags*
+@ANANYA - CAN YOU PLS EDIT AND PUT A VIDEO HERE TOO
 
 ---
 

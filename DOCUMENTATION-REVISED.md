@@ -433,7 +433,7 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 
 ### Demo Video
 
-[Video of FWG](FWG/FWG(1).mp4)
+[Video of FWG](FWG(1).mp4)
 
 ### Week 4 - Problems Encountered
 

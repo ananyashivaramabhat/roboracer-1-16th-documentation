@@ -429,8 +429,6 @@ sudo apt install ros-humble-foxglove-bridge
 ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```
 
----
-
 ### Demo Video
 
 [Video of FWG](FWG(1).mp4)

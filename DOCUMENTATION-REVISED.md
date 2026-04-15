@@ -210,9 +210,7 @@ The E116 controls **yaw** via the steering servo and longitudinal speed via the 
 
 ### Demo Video
 
-> **[VIDEO PLACEHOLDER]** *Teleop*
-> @ANANYA PLS PUT AN EDITED VIDEO OF TELEOP HERE - See the Teleop video folder
-
+[Telop Video](Teleop.mp4)
 > **[VIDEO PLACEHOLDER]** *PWM Tuning*
 > @ANANYA PLS PUT AN EDITED VIDEO OF PWM TUNING - BOTH MOTOR AND SERVO
 

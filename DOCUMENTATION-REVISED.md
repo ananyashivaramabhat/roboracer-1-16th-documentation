@@ -2,15 +2,15 @@
 
 ## Table of Contents
 
-1. [Week 1 — Hardware Familiarization & Linux Basics](#week-1)
-2. [Week 2 — Teleop, PWM Tuning & ROS 2 Introduction](#week-2)
-3. [Week 3 — Stereo Camera & AprilTag Detection](#week-3)
-4. [Week 4 — Gap Follow Algorithm & Race Preparation](#week-4)
+1. [Week 1 — Hardware Familiarization &amp; Linux Basics](#week-1)
+2. [Week 2 — Teleop, PWM Tuning &amp; ROS 2 Introduction](#week-2)
+3. [Week 3 — Stereo Camera &amp; AprilTag Detection](#week-3)
+4. [Week 4 — Gap Follow Algorithm &amp; Race Preparation](#week-4)
 5. [References](#references)
 
 ---
 
-## Week 1 — Hardware Familiarization & Linux Basics {#week-1}
+## Week 1 — Hardware Familiarization & Linux Basics
 
 ### Overview
 
@@ -24,16 +24,18 @@ The first lab session introduced the E116 autonomous race car platform, its hard
 
 Two battery types power the car:
 
-| Battery | Chemistry | Nominal Voltage | Use |
-|---|---|---|---|
-| LiPo (OVONIC) | Lithium Polymer | 11.1 V (3S) | Jetson / compute power |
-| NiMH (Traxxas) | Nickel-Metal Hydride | 7.2 V (6-cell) | Drive-train ESC |
+| Battery        | Chemistry            | Nominal Voltage | Use                    |
+| -------------- | -------------------- | --------------- | ---------------------- |
+| LiPo (OVONIC)  | Lithium Polymer      | 11.1 V (3S)     | Jetson / compute power |
+| NiMH (Traxxas) | Nickel-Metal Hydride | 7.2 V (6-cell)  | Drive-train ESC        |
 
 **Rechargeable v/s Primary:** Rechargeable batteries (LiPo, NiMH) can be cycled hundreds of times via controlled charge/discharge. Primary batteries (e.g., alkaline) undergo irreversible electrochemical reactions and are single-use.
 
 **LiPo C-rating** - defines maximum safe continuous discharge current:
 
-$$I_{max} = C \times \text{Capacity (Ah)}$$
+$$
+I_{max} = C \times \text{Capacity (Ah)}
+$$
 
 *Example: 50C × 1.4 Ah = 70 A maximum continuous draw.*
 
@@ -47,12 +49,12 @@ On the E116, the LiPo battery can be replaced with a barrel jack for convenience
 
 #### 1.2 Brushless Motor vs. Brushed Motor
 
-| Feature | Brushed | Brushless |
-|---|---|---|
+| Feature     | Brushed            | Brushless  |
+| ----------- | ------------------ | ---------- |
 | Commutation | Mechanical brushes | Electronic |
-| Efficiency | Lower | Higher |
-| Maintenance | Brush wear | Minimal |
-| Cost | Lower | Higher |
+| Efficiency  | Lower              | Higher     |
+| Maintenance | Brush wear         | Minimal    |
+| Cost        | Lower              | Higher     |
 
 The E116 uses a Velineon® 380 brushless motor paired with an Electronic Speed Controller (ESC). The ESC drives the motor by switching the phase currents electronically.
 
@@ -60,11 +62,11 @@ The E116 uses a Velineon® 380 brushless motor paired with an Electronic Speed C
 
 #### 1.3 GPU vs. CPU — NVIDIA Jetson Orin Nano
 
-| | CPU | GPU |
-|---|---|---|
+|            | CPU                    | GPU                           |
+| ---------- | ---------------------- | ----------------------------- |
 | Core count | Few (high clock speed) | Thousands (lower clock speed) |
-| Best for | Serial, branchy logic | Parallel numerical workloads |
-| On Jetson | ARM Cortex-A78AE | Ampere GPU (1024 CUDA cores) |
+| Best for   | Serial, branchy logic  | Parallel numerical workloads  |
+| On Jetson  | ARM Cortex-A78AE       | Ampere GPU (1024 CUDA cores)  |
 
 The **NVIDIA Jetson Orin Nano** is a compact **System-on-Module (SoM)** designed for edge AI inference combining CPU, GPU, and memory in a low-power package suitable for an autonomous vehicle.
 
@@ -87,6 +89,7 @@ python3 script.py    # run Python script
 ```
 
 **File permissions** are displayed as `drwxr-xr-x`:
+
 - `d` = directory, `-` = file
 - `r` = read, `w` = write, `x` = execute
 - Three groups: owner | group | others
@@ -103,7 +106,7 @@ python3 script.py    # run Python script
 
 Charging the LiPo battery was confusing at first. We were unsure what voltage and current rating to charge at. There was also no way to know when the Traxxas battery was discharged, and we weren't able to get the multimeters working reliably. So, we ended up sourcing a Traxxas battery charger to see the amount that it was charged.
 
-## Week 2 — Teleop, PWM Tuning & ROS 2 Introduction {#week-2}
+## Week 2 — Teleop, PWM Tuning & ROS 2 Introduction
 
 ### Overview
 
@@ -117,19 +120,23 @@ Week 2 moved from static hardware inspection to active control. The car was driv
 
 **Pulse Width Modulation (PWM)** encodes a command as the duty cycle of a periodic digital signal.
 
-$$\text{Duty Cycle} = \frac{t_{on}}{T} \times 100\%$$
+$$
+\text{Duty Cycle} = \frac{t_{on}}{T} \times 100\%
+$$
 
 The E116 uses **200 Hz** PWM. The duty cycle is represented as an unsigned 8-bit integer mapped to 0–100%:
 
-$$\text{Step size} = \frac{100\%}{2^8} \approx 0.39\%\text{/step}$$
+$$
+\text{Step size} = \frac{100\%}{2^8} \approx 0.39\%\text{/step}
+$$
 
 **Motor deadband:** The ESC has a neutral zone where no motion occurs. Parameters tuned:
 
-| Parameter | Typical Range |
-|---|---|
-| `motor_forward_start` | 30.00 – 31.50 % duty |
+| Parameter                | Typical Range         |
+| ------------------------ | --------------------- |
+| `motor_forward_start`  | 30.00 – 31.50 % duty |
 | `motor_backward_start` | 27.50 – 29.00 % duty |
-| `servo_center` | ~29.70 % duty |
+| `servo_center`         | ~29.70 % duty         |
 
 The values found were input into the configuration files for the car, and used for the rest of the assignments.
 
@@ -164,13 +171,13 @@ Core communication model:
 
 Key concepts:
 
-| Concept | Description |
-|---|---|
-| **Node** | An independent process (e.g., motor driver, camera) |
-| **Topic** | A named channel for streaming messages |
-| **Publisher** | A node that sends data to a topic |
-| **Subscriber** | A node that receives data from a topic |
-| **Message type** | Structured data schema (e.g., `geometry_msgs/Twist`) |
+| Concept                | Description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| **Node**         | An independent process (e.g., motor driver, camera)   |
+| **Topic**        | A named channel for streaming messages                |
+| **Publisher**    | A node that sends data to a topic                     |
+| **Subscriber**   | A node that receives data from a topic                |
+| **Message type** | Structured data schema (e.g.,`geometry_msgs/Twist`) |
 
 Essential CLI commands:
 
@@ -191,11 +198,11 @@ ros2 run rqt_graph rqt_graph
 
 The car's orientation is described by three Euler angles:
 
-| Angle | Axis | Motion |
-|---|---|---|
-| **Roll** | X (longitudinal) | Tipping left/right |
-| **Pitch** | Y (lateral) | Nose up/down |
-| **Yaw** | Z (vertical) | Turning left/right |
+| Angle           | Axis             | Motion             |
+| --------------- | ---------------- | ------------------ |
+| **Roll**  | X (longitudinal) | Tipping left/right |
+| **Pitch** | Y (lateral)      | Nose up/down       |
+| **Yaw**   | Z (vertical)     | Turning left/right |
 
 The E116 controls **yaw** via the steering servo and longitudinal speed via the drive motor. The **Common Road vehicle model** treats the car as a rigid body constrained to a 2D plane, with steering modeled by Ackermann geometry.
 
@@ -204,11 +211,10 @@ The E116 controls **yaw** via the steering servo and longitudinal speed via the 
 ### Demo Video
 
 > **[VIDEO PLACEHOLDER]** *Teleop*
-@ANANYA PLS PUT AN EDITED VIDEO OF TELEOP HERE - See the Teleop video folder
-
+> @ANANYA PLS PUT AN EDITED VIDEO OF TELEOP HERE - See the Teleop video folder
 
 > **[VIDEO PLACEHOLDER]** *PWM Tuning*
-@ANANYA PLS PUT AN EDITED VIDEO OF PWM TUNING - BOTH MOTOR AND SERVO
+> @ANANYA PLS PUT AN EDITED VIDEO OF PWM TUNING - BOTH MOTOR AND SERVO
 
 ---
 
@@ -218,7 +224,7 @@ The battery discharged quite quickly, not allowing us to tune the PWM properly. 
 
 ---
 
-## Week 3 — Stereo Camera & AprilTag Detection {#week-3}
+## Week 3 — Stereo Camera & AprilTag Detection
 
 ### Overview
 
@@ -267,7 +273,9 @@ The tag family used: **tag36h11** — a 6×6 bit payload with error-correcting c
 
 **Pose estimation** from a known tag size and camera intrinsics uses the PnP (Perspective-n-Point) algorithm, solving for the rotation matrix $R$ and translation vector $t$ such that:
 
-$$\mathbf{p}_{img} = K \left[ R \mid t \right] \mathbf{P}_{world}$$
+$$
+\mathbf{p}_{img} = K \left[ R \mid t \right] \mathbf{P}_{world}
+$$
 
 where $K$ is the camera intrinsic matrix.
 
@@ -277,11 +285,11 @@ where $K$ is the camera intrinsic matrix.
 
 RViz displays coordinate frames as RGB-colored axes:
 
-| Color | Axis | Direction |
-|---|---|---|
-| **Red** | X | Forward (out of camera) |
-| **Green** | Y | Left |
-| **Blue** | Z | Up |
+| Color           | Axis | Direction               |
+| --------------- | ---- | ----------------------- |
+| **Red**   | X    | Forward (out of camera) |
+| **Green** | Y    | Left                    |
+| **Blue**  | Z    | Up                      |
 
 When an AprilTag is detected, an additional frame appears anchored to the tag. Moving the tag physically causes the axes to move in RViz in real time, confirming successful 6-DOF tracking.
 
@@ -313,7 +321,7 @@ Most of the problems we encountered were to do with setting up teleop in the int
 
 ---
 
-## Week 4 — Gap Follow Algorithm & Race Preparation {#week-4}
+## Week 4 — Gap Follow Algorithm & Race Preparation
 
 ### Overview
 
@@ -337,16 +345,18 @@ The Gap Follow algorithm is a **reactive planning** method. It makes steering de
 
 **Key tunable parameters in `gap_follow.py`:**
 
-| Parameter | Effect |
-|---|---|
-| `SPEED1` | Nominal cruising speed |
-| `SPEED2` | Reduced speed (e.g., near corners) |
-| `turningAngle` | Maximum steering angle (radians) |
-| `angle_scale` | Gain mapping tag offset → steering command |
+| Parameter        | Effect                                      |
+| ---------------- | ------------------------------------------- |
+| `SPEED1`       | Nominal cruising speed                      |
+| `SPEED2`       | Reduced speed (e.g., near corners)          |
+| `turningAngle` | Maximum steering angle (radians)            |
+| `angle_scale`  | Gain mapping tag offset → steering command |
 
 The steering command maps to the `/e116_ackermann` topic and ultimately to the servo PWM:
 
-$$\delta = \text{angle\_scale} \times \Delta x_{tags}$$
+$$
+\delta = \text{angle\_scale} \times \Delta x_{tags}
+$$
 
 where $\Delta x_{tags}$ is the horizontal offset of the gap center from the image center.
 
@@ -374,14 +384,18 @@ AC adapter connected → swap LiPo → disconnect AC adapter → continue
 #### 4.3 Race Track Layout
 
 ```
+
 ```
+
 100-series (Left)                200-series (Right)
 |                                |
 |               ↑                |
 |            [PATH]              |
 |               ↑                |
 |                                |
+
 ```
+
 ```
 
 ---
@@ -419,17 +433,13 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 
 ### Demo Video
 
-> **[VIDEO PLACEHOLDER]** *Follow the Gap with April Tags*
-@ANANYA - CAN YOU PLS EDIT AND PUT A VIDEO HERE TOO
-
----
+[Video of FWG](FWG(1).mp4)
 
 ### Week 4 - Problems Encountered
 
-
 ---
 
-## References {#references}
+## References
 
 1. **ROS 2 Humble Documentation** — [https://docs.ros.org/en/humble/](https://docs.ros.org/en/humble/)
 2. **Intel RealSense D435 Product Page** — [https://store.realsenseai.com](https://store.realsenseai.com)
@@ -453,4 +463,3 @@ Special thanks to **Professor Rosa Zheng** of the Department of Electrical and C
 ---
 
 ### Learnings from E116 for RoboRacer-mini
-

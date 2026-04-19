@@ -155,7 +155,7 @@ ssh -X username@ipaddress
 
 The `-X` flag enables X11 forwarding so GUI windows (like gedit) appear on the host. Once connected, all commands execute on the remote Jetson.
 
-[![Video walkthrough of hardware]()](Week1_SSH.mp4)
+[![Video of SSH]()](Week1_SSH.mp4)
 
 ---
 
@@ -351,9 +351,9 @@ The Gap Follow algorithm is a **reactive planning** method. It makes steering de
 
 The steering command maps to the `/e116_ackermann` topic and ultimately to the servo PWM:
 
-$$
+```math
 \delta = \text{angle\_scale} \times \Delta x_{tags}
-$$
+```
 
 where $\Delta x_{tags}$ is the horizontal offset of the gap center from the image center.
 
@@ -382,16 +382,12 @@ AC adapter connected → swap LiPo → disconnect AC adapter → continue
 
 ```
 
-```
-
 100-series (Left)                200-series (Right)
 |                                |
 |               ↑                |
 |            [PATH]              |
 |               ↑                |
 |                                |
-
-```
 
 ```
 
@@ -428,7 +424,7 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 
 ### Demo Video
 
-[Video of FWG](FWG(1).mp4)
+[Video of FTG](FTG(1).mp4)
 
 ### Week 4 - Problems Encountered
 
@@ -456,4 +452,6 @@ Special thanks to **Professor Rosa Zheng** of the Department of Electrical and C
 
 ---
 
-### Learnings from E116 for RoboRacer-mini
+### Learnings from E116 to inspire RoboRacer-mini
+
+- 
